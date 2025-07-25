@@ -1,0 +1,29 @@
+class Solution:
+    def restoreIpAddresses(self, s: str):
+        result = []
+
+        def is_valid(segment):
+            # Check if the segment is valid
+            if len(segment) > 1 and segment[0] == '0':
+                return False
+            if int(segment) > 255:
+                return False
+            return True
+
+        def backtrack(start, path):
+            # If 4 segments are done and we are at the end of the string
+            if len(path) == 4:
+                if start == len(s):
+                    result.append('.'.join(path))
+                return
+
+            # Try segment lengths of 1 to 3
+            for length in range(1, 4):
+                if start + length > len(s):
+                    break
+                segment = s[start:start+length]
+                if is_valid(segment):
+                    backtrack(start+length, path + [segment])
+
+        backtrack(0, [])
+        return result
