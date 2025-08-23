@@ -1,0 +1,83 @@
+class Solution:
+    def minimumSum(self, grid: List[List[int]]) -> int:
+        R, C = len(grid), len(grid[0])
+        
+        ones = []
+        for r in range(R):
+            for c in range(C):
+                if grid[r][c] == 1:
+                    ones.append((r, c))
+        
+        if len(ones) < 3:
+            pass
+
+        def get_bounding_box_area(points):
+            if not points:
+                return 0
+            min_r = min(p[0] for p in points)
+            max_r = max(p[0] for p in points)
+            min_c = min(p[1] for p in points)
+            max_c = max(p[1] for p in points)
+            return (max_r - min_r + 1) * (max_c - min_c + 1)
+
+        min_total_area = float('inf')
+        
+        # Case 1: Two horizontal splits
+        # Grid is split into 3 horizontal strips
+        for r1 in range(R - 1):
+            for r2 in range(r1 + 1, R - 1):
+                area1 = get_bounding_box_area([p for p in ones if p[0] <= r1])
+                area2 = get_bounding_box_area([p for p in ones if r1 < p[0] <= r2])
+                area3 = get_bounding_box_area([p for p in ones if p[0] > r2])
+                if area1 > 0 and area2 > 0 and area3 > 0:
+                    min_total_area = min(min_total_area, area1 + area2 + area3)
+        
+        # Case 2: Two vertical splits
+        # Grid is split into 3 vertical strips
+        for c1 in range(C - 1):
+            for c2 in range(c1 + 1, C - 1):
+                area1 = get_bounding_box_area([p for p in ones if p[1] <= c1])
+                area2 = get_bounding_box_area([p for p in ones if c1 < p[1] <= c2])
+                area3 = get_bounding_box_area([p for p in ones if p[1] > c2])
+                if area1 > 0 and area2 > 0 and area3 > 0:
+                    min_total_area = min(min_total_area, area1 + area2 + area3)
+                    
+        # Case 3: One horizontal and one vertical split (T-shaped or reverse T-shaped)
+        # a) Horizontal split, then vertical split on top part
+        for r_split in range(R - 1):
+            for c_split in range(C - 1):
+                area1 = get_bounding_box_area([p for p in ones if p[0] <= r_split and p[1] <= c_split])
+                area2 = get_bounding_box_area([p for p in ones if p[0] <= r_split and p[1] > c_split])
+                area3 = get_bounding_box_area([p for p in ones if p[0] > r_split])
+                if area1 > 0 and area2 > 0 and area3 > 0:
+                    min_total_area = min(min_total_area, area1 + area2 + area3)
+
+        # b) Horizontal split, then vertical split on bottom part
+        for r_split in range(R - 1):
+            for c_split in range(C - 1):
+                area1 = get_bounding_box_area([p for p in ones if p[0] <= r_split])
+                area2 = get_bounding_box_area([p for p in ones if p[0] > r_split and p[1] <= c_split])
+                area3 = get_bounding_box_area([p for p in ones if p[0] > r_split and p[1] > c_split])
+                if area1 > 0 and area2 > 0 and area3 > 0:
+                    min_total_area = min(min_total_area, area1 + area2 + area3)
+        
+        # Case 4: One vertical and one horizontal split (L-shaped or reverse L-shaped)
+        # a) Vertical split, then horizontal split on left part
+        for c_split in range(C - 1):
+            for r_split in range(R - 1):
+                area1 = get_bounding_box_area([p for p in ones if p[1] <= c_split and p[0] <= r_split])
+                area2 = get_bounding_box_area([p for p in ones if p[1] <= c_split and p[0] > r_split])
+                area3 = get_bounding_box_area([p for p in ones if p[1] > c_split])
+                if area1 > 0 and area2 > 0 and area3 > 0:
+                    min_total_area = min(min_total_area, area1 + area2 + area3)
+        
+        # b) Vertical split, then horizontal split on right part
+        for c_split in range(C - 1):
+            for r_split in range(R - 1):
+                area1 = get_bounding_box_area([p for p in ones if p[1] <= c_split])
+                area2 = get_bounding_box_area([p for p in ones if p[1] > c_split and p[0] <= r_split])
+                area3 = get_bounding_box_area([p for p in ones if p[1] > c_split and p[0] > r_split])
+                if area1 > 0 and area2 > 0 and area3 > 0:
+                    min_total_area = min(min_total_area, area1 + area2 + area3)
+
+        return min_total_area
